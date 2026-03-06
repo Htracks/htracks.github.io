@@ -7,164 +7,123 @@
     <style>
       body {
         font-family: Arial, sans-serif;
-        background-color: #1e1e1e;
-        color: #fff;
+        background-color: white;
+        color: black;
         margin: 0;
         padding: 0;
         text-align: center;
+		align: center;
       }
 
       h1 {
-        font-size: 50px;
-        margin-top: 20px;
+        font-size: 32px;
+        margin-top: 16px;
         margin-bottom: 20px;
       }
-
-      p {
-        font-size: 20px;
-      }
-
-      a {
-        text-decoration: none;
-        color: #ddd;
-        font-weight: bold;
-        font-size: 20px;
-      }
-
-      a:hover {
-        color: #686df2;
-      }
-
-      #game {
-        width: 300px;
-        height: 300px;
-        margin: 20px auto;
-        display: grid;
-        grid-template-columns: repeat(16, 1fr);
-        grid-template-rows: repeat(16, 1fr);
-        gap: 0;
-        background: #111;
-      }
-
-      .cell {
-        width: 100%;
-        height: 100%;
-        background: #333;
-      }
-
-      .snake {
-        background: lime;
-      }
-
-      .food {
-        background: red;
-      }
-
-      #overlay {
-        position: absolute;
-        top: 400px;
-        left: 0;
-        right: 0;
-        color: white;
-        font-size: 2em;
-        text-align: center;
-        display: none;
-      }
+	  .canvas {
+		align: center;
+		margin: 70px;
+	  }
     </style>
   </head>
   <body>
     <h1>404 - Page Not Found</h1>
-    <p>Press any key to start the snake game! <a href="https://wowdabug.github.io/wdbg/index.html">Go to Home</a>
-    </p>
-    <div id="game"></div>
-    <div id="overlay"></div>
+    <canvas id="canvas"></canvas>
     <script>
-      const game = document.getElementById('game');
-      const overlay = document.getElementById('overlay');
-      const cells = [];
-      const gridSize = 16;
-      let snake = [0];
-      let direction = 1;
-      let nextDirection = 1;
-      let food = null;
-      let interval = null;
-      let running = false;
-      for (let i = 0; i < gridSize * gridSize; i++) {
-        const cell = document.createElement('div');
-        cell.classList.add('cell');
-        game.appendChild(cell);
-        cells.push(cell);
-      }
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+let g_canvasWidth = window.innerWidth;
+let g_canvasHeight = window.innerHeight;
 
-      function placeFood() {
-        do {
-          food = Math.floor(Math.random() * (gridSize * gridSize));
-        } while (snake.includes(food));
-        cells[food].classList.add('food');
-      }
+let g_keys = {};
+let g_mouseX = 0;
+let g_mouseY = 0;
+let g_debug = true;
 
-      function drawSnake() {
-        cells.forEach(c => c.classList.remove('snake'));
-        snake.forEach(i => cells[i].classList.add('snake'));
-      }
+let g_delta = 0;
+let g_deltaTemp = Date.now();
 
-      function move() {
-        direction = nextDirection;
-        const head = snake[snake.length - 1];
-        let next = head + direction;
-        if (direction === 1 && (head % gridSize) === gridSize - 1) next = head - (gridSize - 1);
-        if (direction === -1 && (head % gridSize) === 0) next = head + (gridSize - 1);
-        if (direction === gridSize && head >= (gridSize * (gridSize - 1))) next = head - (gridSize * (gridSize - 1));
-        if (direction === -gridSize && head < gridSize) next = head + (gridSize * (gridSize - 1));
-        if (snake.includes(next)) {
-          stopGame();
-          return;
-        }
-        snake.push(next);
-        if (next === food) {
-          cells[food].classList.remove('food');
-          placeFood();
-        } else {
-          snake.shift();
-        }
-        drawSnake();
-      }
+const g_grid = [];
+const g_gridWidth = 13;
+const g_gridHeight = 7;
+for(let i = 0; i < g_gridWidth * g_gridHeight; ++i) {
+	g_grid[i] = getRandomInt(256);
+}
 
-      function changeDirection(e) {
-        if (!running) return;
-        const key = e.key;
-        if ((key === 'ArrowUp' || key === 'w') && direction !== gridSize) nextDirection = -gridSize;
-        if ((key === 'ArrowDown' || key === 's') && direction !== -gridSize) nextDirection = gridSize;
-        if ((key === 'ArrowLeft' || key === 'a') && direction !== 1) nextDirection = -1;
-        if ((key === 'ArrowRight' || key === 'd') && direction !== -1) nextDirection = 1;
-      }
+const g_camera = {
+	posX: 0,
+	posY: 0
+};
 
-      function startGame() {
-        snake = [0];
-        direction = 1;
-        nextDirection = 1;
-        running = true;
-        cells.forEach(c => c.classList.remove('snake', 'food'));
-        placeFood();
-        drawSnake();
-        overlay.style.display = 'none';
-        clearInterval(interval);
-        interval = setInterval(move, 64);
-      }
+window.addEventListener("keydown", function(event) {
+	g_keys[event.key] = true; 
+});
+window.addEventListener("keyup", function(event) {
+	g_keys[event.key] = false;
+});
 
-      function stopGame() {
-        running = false;
-        clearInterval(interval);
-        overlay.style.display = 'block';
-      }
-      document.addEventListener('keydown', e => {
-        if (!running) {
-          startGame();
-          changeDirection(e);
-        } else {
-          changeDirection(e);
-        }
-      });
+window.addEventListener("mousemove", function(event) {
+	g_mouseX = event.clientX;
+	g_mouseY = event.clientY;
+});
+
+window.addEventListener("click", function(event) {
+/* todo
+	const canvasScale = g_canvasSize / 16;
+	const x = Math.floor((g_mouseX + g_camera.posX) / canvasScale) % 16;
+	const y = Math.floor((g_mouseY + g_camera.posY) / canvasScale) * 16;
+	g_grid[x + y] = 0;
+*/
+});
+
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
+}
+
+function update(deltaTime) {
+/* todo
+	const speed = 0.25;
+	const dx = g_mouseX - g_canvasSize / 2;
+	const dy = g_mouseY - g_canvasSize / 2;
+	const length = Math.sqrt(dx * dx + dy * dy);
+	if (length > 16 && g_keys["w"]) {
+		g_camera.posX += dx / length * speed * deltaTime;
+		g_camera.posY += dy / length * speed * deltaTime;
+	}
+*/
+}
+
+function render() {
+	ctx.canvas.width = g_canvasWidth;
+	ctx.canvas.height = g_canvasHeight;
+	ctx.imageSmoothingEnabled = false;
+	const canvasScale = g_canvasSize / 16;
+		
+	// chunks
+	for(let width = 0; width < g_gridWidth; width++) {
+		for(let height = 0; height < g_gridHeight; height++) {
+			const id = g_grid[width + height * 16];
+			ctx.fillStyle = `rgba(0, 0, 0, ${id/256})`;
+			ctx.fillRect(width *  canvasScale - g_camera.posX, height *  canvasScale - g_camera.posY,  canvasScale * 1.00, canvasScale * 1.00);
+		}
+	}
+}
+
+function loop() {
+	g_canvasSize = ((window.innerWidth > window.innerHeight) ? window.innerHeight : window.innerWidth)
+	
+	// delta time
+	temp = Date.now();
+	g_delta = temp - g_deltaTemp;
+	g_deltaTemp = temp;
+	
+	update(g_delta);
+	render();
+	requestAnimationFrame(loop);
+}
+
+loop();
+
     </script>
   </body>
 </html>

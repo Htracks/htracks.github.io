@@ -12,8 +12,8 @@
     "answer": "PVZ, more strategy and puzzle games, maybe Eaglercraft..."
   },
   {
-    "question": "When do you check suggestions?",
-    "answer": "Suggestions will always be read at some point and considered, even if it takes a month to do so."
+    "question": "When are suggestions checked?",
+    "answer": "Suggestions will always be read at some point and considered, even if it takes a while to do so."
   },
   {
     "question": "The website is broken!",
@@ -21,11 +21,11 @@
   },
   {
     "question": "The website isn't loading!",
-    "answer": "Because of a recent site overhaul relaunching this site is extremely easy. You can even fork the GitHub repo yourself and make your own website based off this one."
+    "answer": "Because of a recent site overhaul relaunching this site is extremely easy. You can even fork the GitHub repo yourself and make your own website based off this one (you can also launch your own servers and a firebase database as well)."
   },
   {
     "question": "Why can't [game] be added? It's possible to add!",
-    "answer": "Maybe it's possible, but either it runs extremely slowly in a browser, is multiplayer, or it is impractical to host. Any multiplayer games will not be added due to server costs."
+    "answer": "Maybe it's possible, but either it runs extremely slowly in a browser, is multiplayer, or it is impractical to host. Most multiplayer games will not be added due to server costs."
   },
   {
     "question": "How much of this site is vibecoded?",
